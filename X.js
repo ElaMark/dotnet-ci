@@ -1,61 +1,61 @@
 $(document).ready(function () {
     var socketOpen = false;
-    var nbeSR;
+    var DonkeySR;
     $("#btnPost").attr('disabled', 'disabled');
  
 
-    nbeSR = new signalR.HubConnectionBuilder()
-            .withUrl("/nbehub")
+    DonkeySR = new signalR.HubConnectionBuilder()
+            .withUrl("/Donkeyhub")
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
     function start(){      
-            nbeSR.start().then(function () {
+            DonkeySR.start().then(function () {
                 State_ReadyToPost();
                 socketOpen = true;
-                nbeSR.invoke("GetAllPosts");
+                DonkeySR.invoke("GetAllThoughts");
             });
     }
 
     start();
     UseCookie();
 
-    nbeSR.onreconnected((connectionId) => {
+    DonkeySR.onreconnected((connectionId) => {
        State_ReadyToPost();
     });     
 
-    nbeSR.onreconnecting((connectionId) => {
+    DonkeySR.onreconnecting((connectionId) => {
         State_PostNotReady("Connecting");
     });  
 
-    nbeSR.onclose(function () {
+    DonkeySR.onclose(function () {
         socketOpen = false;
         State_PostNotReady("Connecting");
     });
 
 
-    nbeSR.on("newPost", function (posts) {
-        var allPosts = JSON.parse(posts);
-        $("#posts").html("");
+    DonkeySR.on("newPost", function (thoughts) {
+        var allThoughts = JSON.parse(thoughts);
+        $("#thoughts").html("");
                
         var i = 0;
-        for (var p in allPosts) {
-            var person = $("<span/>").html(allPosts[p].Person).text();
-            var message = $("<span/>").html(allPosts[p].Message).text();
-            if (allPosts[p].Person == $("#usr").val())
-                $("#postTemplate").clone().attr('id', 'ptc' + i).attr('class', 'panel panel-danger').appendTo("#posts");
+        for (var p in allThoughts) {
+            var person = $("<span/>").html(allThoughts[p].Person).text();
+            var message = $("<span/>").html(allThoughts[p].Message).text();
+            if (allThoughts[p].Person == $("#usr").val())
+                $("#postTemplate").clone().attr('id', 'ptc' + i).attr('class', 'panel panel-danger').appendTo("#thoughts");
             else
-                $("#postTemplate").clone().attr('id', 'ptc' + i).appendTo("#posts");
-            if (allPosts[p].FormattedDate == undefined)
-                $('#ptc' + i).children("#person").html(person + " &nbsp;&nbsp;&nbsp;&nbsp;(" + allPosts[p].PostTime.substring(0, 16) + ")");
+                $("#postTemplate").clone().attr('id', 'ptc' + i).appendTo("#thoughts");
+            if (allThoughts[p].FormattedDate == undefined)
+                $('#ptc' + i).children("#person").html(person + " &nbsp;&nbsp;&nbsp;&nbsp;(" + allThoughts[p].PostTime.substring(0, 16) + ")");
             else
-                $('#ptc' + i).children("#person").html(person + " &nbsp;&nbsp;&nbsp;&nbsp;(" + allPosts[p].FormattedDate + ")");
+                $('#ptc' + i).children("#person").html(person + " &nbsp;&nbsp;&nbsp;&nbsp;(" + allThoughts[p].FormattedDate + ")");
             $('#ptc' + i).children("#message").html(message);
             i++;
         }
     });
 
-    nbeSR.on("postSuccessful", function () {
+    DonkeySR.on("postSuccessful", function () {
         State_ReadyToPost();
     });
 
@@ -86,12 +86,12 @@ $(document).ready(function () {
 
     $("#chkMessages").click(function (e) {
         if ($("#chkMessages").prop("checked")) {
-            alert('This only works for Google Chrome on a desktop computer. If you tick the box then leave the browser running in the background you should get a visual cue when new posts are added. There\'s no point to ticking it on a mobile phone or tablet as browsers go to sleep in those environments. Try it to see if it works for you, if not, untick the box.  \n\n Mark.');
+            alert('This only works for Google Chrome on a desktop computer. If you tick the box then leave the browser running in the background you should get a visual cue when new thoughts are added. There\'s no point to ticking it on a mobile phone or tablet as browsers go to sleep in those environments. Try it to see if it works for you, if not, untick the box.  \n\n Mark.');
         }
     });
 
     setInterval(function(){
-        if(nbeSR.connectionState != "Connected"){
+        if(DonkeySR.connectionState != "Connected"){
             State_PostNotReady("Connecting");
             start();
         }
@@ -106,7 +106,7 @@ $(document).ready(function () {
             postItem.person = $("#usr").val();
             postItem.message = $("#comment").val();
             postItem.token = $("#token").val();
-            nbeSR.invoke("AddPost", JSON.stringify(postItem));
+            DonkeySR.invoke("AddPost", JSON.stringify(postItem));
             $("#comment").val("");
         }
     }
