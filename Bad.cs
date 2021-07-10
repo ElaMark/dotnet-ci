@@ -11,7 +11,7 @@ namespace dotnet_ci
             {
                 str = str + i + "-";  // yuk
             }
-            str="Select from table where t.thing like '%" + str + "%'";
+            str="Select * from table t where t.thing like '%" + str + "%'";
         }
     }
 }
