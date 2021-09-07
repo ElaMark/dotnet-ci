@@ -9,6 +9,7 @@ namespace dotnet_ci
             string str = "";
             for (int i = 0; i < 10; i++)
             {
+                
                 str = str + i + "-";  // yuk
             }
             str="Select * from table t where t.thing like '%" + str + "%'";
